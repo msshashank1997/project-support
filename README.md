@@ -4,9 +4,9 @@ This system automatically monitors a GitHub repository for new commits and updat
 
 ## Components
 
-- `Commits.py` - Python script to check for new GitHub commits
-- `update_and_restart.sh` - Shell script for continuous monitoring and updates
-- `latest_commit.json` - Stores the latest commit SHA
+- `check_github_commits.py` - Python script to check for new GitHub commits
+- `automate_update.sh` - Shell script for continuous monitoring and updates
+- `github_token.env` - Environment file for GitHub credentials
 
 ## Prerequisites
 
@@ -52,11 +52,11 @@ This system automatically monitors a GitHub repository for new commits and updat
    cp * ~/runscript/
    cd ~/runscript
    
-   # Create .env file
-   echo "GITHUB_TOKEN=your_token_here" > .env
+   # Create github_token.env file
+   echo "GITHUB_TOKEN=your_token_here" > github_token.env
    
    # Set permissions
-   chmod +x update_and_restart.sh
+   chmod +x automate_update.sh
    ```
 
 ## Nginx Configuration
@@ -95,13 +95,16 @@ sudo systemctl reload nginx  # Apply changes
 
 ## Configuration
 
-- Update the `GITHUB_REPO` variable in `Commits.py` to your repository
-- Adjust the paths in the scripts to match your system configuration
-- Modify the sleep duration if needed (currently set to 600 seconds/10 minutes)
+- Update the repository URL in `check_github_commits.py`
+- Create `github_token.env` with your GitHub token:
+  ```
+  GITHUB_TOKEN=your_token_here
+  ```
+- Adjust the update interval in `automate_update.sh` (default: 600 seconds)
 
 ## Security Note
 
-Ensure your GitHub token has appropriate permissions and is kept secure. Never commit the `.env` file to version control.
+Ensure your GitHub token has appropriate permissions and is kept secure. Never commit the `github_token.env` file to version control.
 
 ## Troubleshooting
 
@@ -123,13 +126,13 @@ You can automate the monitoring process using crontab instead of running the scr
 2. Add the following line to run the update check every hour:
    ```bash
    # Run update check at minute 1 of every hour
-   1 * * * * /home/user/runscript/update_and_restart.sh >> /home/user/runscript/cron.log 2>&1
+   1 * * * * /home/user/runscript/automate_update.sh >> /home/user/runscript/cron.log 2>&1
    ```
 
    Or for more frequent checks (every 10 minutes):
    ```bash
    # Run update check every 10 minutes
-   */10 * * * * /home/user/runscript/update_and_restart.sh >> /home/user/runscript/cron.log 2>&1
+   */10 * * * * /home/user/runscript/automate_update.sh >> /home/user/runscript/cron.log 2>&1
    ```
 
 ### Managing Cron Jobs
