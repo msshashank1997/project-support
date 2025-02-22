@@ -1,12 +1,11 @@
 # Automated GitHub Repository Update System
 
-This system automatically monitors a GitHub repository for new commits and updates a local deployment when changes are detected. It supports both Windows and Linux environments.
+This system automatically monitors a GitHub repository for new commits and updates a local deployment when changes are detected.
 
 ## Components
 
 - `Commits.py` - Python script to check for new GitHub commits
-- `update_and_restart.sh` - Linux shell script for continuous monitoring and updates
-- `update_and_reset.ps1` - Windows PowerShell script for continuous monitoring and updates
+- `update_and_restart.sh` - Shell script for continuous monitoring and updates
 - `latest_commit.json` - Stores the latest commit SHA
 
 ## Prerequisites
@@ -20,39 +19,7 @@ This system automatically monitors a GitHub repository for new commits and updat
   python-dotenv
   ```
 
-## Setup Instructions
-
-### Windows Setup
-
-1. Install Prerequisites:
-   - Install Python 3.x from python.org
-   - Install Git from git-scm.com
-   - Install Nginx for Windows
-
-2. Directory Setup:
-   
-   ```
-   D:\New folder\              # Main script directory
-   C:\nginx\nginx-1.27.4\      # Nginx installation
-   C:\nginx\nginx-1.27.4\html\ # Web root directory
-   ```
-
-3. Create Required Files:
-   
-   ```powershell
-   # Create script directory if it doesn't exist
-   New-Item -ItemType Directory -Force -Path "D:\New folder"
-   ```
-   
-4. Start Monitoring:
-   
-   ```powershell
-   # Run as Administrator
-   cd "D:\New folder"
-   .\update_and_reset.ps1
-   ```
-
-### Linux/Ubuntu Setup
+## Ubuntu Setup
 
 1. Install Prerequisites:
    
@@ -92,16 +59,8 @@ This system automatically monitors a GitHub repository for new commits and updat
    chmod +x update_and_restart.sh
    ```
 
-5. Start Monitoring:
-   
-   ```bash
-   # Run in background
-   nohup ./update_and_restart.sh &
-   ```
-
 ## Nginx Configuration
 
-### Linux Configuration
 Edit the default site configuration:
 
 ```bash
@@ -120,30 +79,11 @@ server {
 }
 ```
 
-### Windows Configuration
-Edit the Nginx configuration file:
-
-```powershell
-notepad C:\nginx\nginx-1.27.4\conf\nginx.conf
-```
-
-Update the server block:
-```nginx
-http {
-    server {
-        root   D:/New folder/html;
-        index  index.html index.htm;
-        
-        location / {
-            try_files $uri $uri/ =404;
-        }
-    }
-}
-```
-
 After making changes:
-- Linux: `sudo nginx -t` to test and `sudo systemctl reload nginx` to apply
-- Windows: `nginx -t` to test and `nginx -s reload` to apply
+```bash
+sudo nginx -t          # Test configuration
+sudo systemctl reload nginx  # Apply changes
+```
 
 ## How It Works
 
@@ -151,8 +91,7 @@ After making changes:
 2. When a new commit is detected:
    - The local repository is updated via `git pull`
    - The web server is restarted/reloaded
-   - Windows: Nginx is reloaded
-   - Linux: Nginx service is restarted
+   - Nginx service is restarted
 
 ## Configuration
 
@@ -166,18 +105,55 @@ Ensure your GitHub token has appropriate permissions and is kept secure. Never c
 
 ## Troubleshooting
 
-### Windows Issues
-- Ensure PowerShell is running as Administrator
-- Check if Nginx paths are correct in update_and_reset.ps1
-- Verify Git is in system PATH
-
-### Linux Issues
 - Check file permissions (especially for /var/www/html)
 - Ensure nginx service is running: `sudo systemctl status nginx`
 - Verify Python dependencies are installed globally or in a virtual environment
 
-## Additional Notes
+## Crontab Configuration
 
-- Windows users: The PowerShell script uses a 10-minute interval
-- Linux users: The bash script runs continuously in the background
-- Both systems create a log file of commit checks
+### Setting Up Cron Jobs
+
+You can automate the monitoring process using crontab instead of running the script manually.
+
+1. Open crontab configuration:
+   ```bash
+   crontab -e
+   ```
+
+2. Add the following line to run the update check every hour:
+   ```bash
+   # Run update check at minute 1 of every hour
+   1 * * * * /home/user/runscript/update_and_restart.sh >> /home/user/runscript/cron.log 2>&1
+   ```
+
+   Or for more frequent checks (every 10 minutes):
+   ```bash
+   # Run update check every 10 minutes
+   */10 * * * * /home/user/runscript/update_and_restart.sh >> /home/user/runscript/cron.log 2>&1
+   ```
+
+### Managing Cron Jobs
+
+- List current cron jobs:
+  ```bash
+  crontab -l
+  ```
+
+- Remove all cron jobs:
+  ```bash
+  crontab -r
+  ```
+
+- Check cron service status:
+  ```bash
+  sudo systemctl status cron
+  ```
+
+### Cron Log Monitoring
+
+Monitor the cron job output:
+```bash
+tail -f /home/user/runscript/cron.log
+```
+
+Note: Ensure your script has proper logging mechanisms when run through cron, as it runs in a limited environment.

@@ -16,9 +16,3 @@ check_commits() {
         sudo systemctl restart nginx
     fi
 }
-
-# Main loop
-while true; do
-    check_commits
-    sleep 600
-done
