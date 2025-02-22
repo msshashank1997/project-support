@@ -16,3 +16,4 @@ check_commits() {
         sudo systemctl restart nginx
     fi
 }
+check_commits
