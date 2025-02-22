@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 
 # Replace these with your own values
-GITHUB_REPO = "msshashank1997/Project"  # e.g., "octocat/Hello-World"
+GITHUB_REPO = "githubusername/Project"  # e.g., "octocat/Hello-World"
 load_dotenv()  # Load environment variables from .env file
 ACCESS_TOKEN = os.getenv("GITHUB_TOKEN")  # GitHub personal access token
 
