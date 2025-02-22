@@ -16,4 +16,6 @@ check_commits() {
         sudo systemctl restart nginx
     fi
 }
+
+# Run the function
 check_commits
