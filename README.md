@@ -20,6 +20,7 @@ This system runs multiple Flask instances with Nginx load balancing.
 ## Flask Application Setup
 
 1. Install Prerequisites:
+
    ```bash
    sudo apt update
    sudo apt install python3 python3-pip nginx
@@ -27,6 +28,7 @@ This system runs multiple Flask instances with Nginx load balancing.
    ```
 
 2. Start Multiple Flask Instances:
+
    ```bash
    # Start first instance
    python app.py --port=5002
@@ -88,6 +90,28 @@ The current configuration uses `least_conn` method for load balancing. Alternati
 - `round_robin` - Default method, routes requests sequentially
 - `least_conn` - Routes to server with fewest active connections
 
+## Set up crontab
+
+1. Make the update script executable:
+   ```bash
+   chmod +x /home/shashank/project-support/update_and_restart.sh
+   ```
+
+2. Open crontab editor:
+   ```bash
+   crontab -e
+   ```
+
+3. Add the following line to run the update script every hour:
+   ```
+   0 * * * * /home/shashank/project-support/update_and_restart.sh
+   ```
+
+4. Verify crontab setup:
+   ```bash
+   crontab -l
+   ```
+
 ## Testing the Setup
 
 1. Access the application:
@@ -133,20 +157,20 @@ The current configuration uses `least_conn` method for load balancing. Alternati
 
    2. **Fix the permissions for the** /run/nginx.pid file: Ensure that the NGINX process has the necessary permissions to write to the `/run/nginx.pid` **file**. You can change the ownership and permissions of the directory and file:
 
-      ```
+      ```bash
       sudo chown -R nginx:nginx /run
       sudo chmod -R 755 /run
       ```
 
    3. After making these changes, test the NGINX configuration again:
 
-      ```
+      ```bash
       sudo nginx -t
       ```
 
    4. If the configuration test passes, you can restart NGINX:
 
-      ```
+      ```bash
       sudo systemctl restart nginx
       ```
 
