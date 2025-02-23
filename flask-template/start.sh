@@ -1,4 +1,5 @@
 #!/bin/bash
+pip install requirements.txt
 export FLASK_APP=app.py
 
 # Start Flask instances on different ports
