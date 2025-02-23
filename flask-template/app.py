@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+import argparse
 
 app = Flask(__name__)
 
@@ -19,4 +20,8 @@ def about():
     return render_template("about.html")
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--port', type=int, default=5000)
+    args = parser.parse_args()
+    
+    app.run(host='0.0.0.0', port=args.port, debug=True)

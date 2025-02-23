@@ -30,8 +30,8 @@ This system automatically monitors a GitHub repository for new commits and updat
    ```bash
    # Run three instances on different ports
    docker run -d -p 5002:5002 --name flask-app-1 flask-app:latest
-   docker run -d -p 5003:5002 --name flask-app-2 flask-app:latest
-   docker run -d -p 5004:5002 --name flask-app-3 flask-app:latest
+   docker run -d -p 5003:5003 --name flask-app-2 flask-app:latest
+   docker run -d -p 5004:5004 --name flask-app-3 flask-app:latest
    ```
 
 3. Verify containers are running:

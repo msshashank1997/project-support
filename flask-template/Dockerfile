@@ -13,8 +13,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
+# Make the startup script executable
+RUN chmod +x start.sh
+
+# Set environment variable
+ENV FLASK_APP=app.py
+
 # Expose multiple ports
 EXPOSE 5002 5003 5004
 
 # Define the command to run the application
-CMD ["python", "app.py"]
+CMD ["./start.sh"]
