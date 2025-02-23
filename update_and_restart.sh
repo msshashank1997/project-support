@@ -10,7 +10,7 @@ check_commits() {
         echo "No new commits found."
     else
         echo "New commit found"
-        cd /home/shashank/
+        cd /home/shashank/project-support
         sudo git pull origin main
         cd /home/shashank/project-support/flask-template
         docker build -t flask-multi-port:latest .
