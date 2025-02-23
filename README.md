@@ -19,6 +19,32 @@ This system automatically monitors a GitHub repository for new commits and updat
   python-dotenv
   ```
 
+## Docker Setup
+
+1. Build the Docker image:
+   ```bash
+   docker build -t flask-app:latest .
+   ```
+
+2. Run multiple containers:
+   ```bash
+   # Run three instances on different ports
+   docker run -d -p 5002:5002 --name flask-app-1 flask-app:latest
+   docker run -d -p 5003:5002 --name flask-app-2 flask-app:latest
+   docker run -d -p 5004:5002 --name flask-app-3 flask-app:latest
+   ```
+
+3. Verify containers are running:
+   ```bash
+   docker ps
+   ```
+
+4. Stop and remove all containers:
+   ```bash
+   docker stop flask-app-1 flask-app-2 flask-app-3
+   docker rm flask-app-1 flask-app-2 flask-app-3
+   ```
+
 ## Ubuntu Setup
 
 1. Install Prerequisites:

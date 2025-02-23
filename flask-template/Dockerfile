@@ -13,8 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 5000
+# Expose multiple ports
+EXPOSE 5002 5003 5004
 
 # Define the command to run the application
 CMD ["python", "app.py"]
