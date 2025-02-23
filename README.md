@@ -120,4 +120,33 @@ The current configuration uses `least_conn` method for load balancing. Alternati
 4. Common issues:
    - Port conflicts
    - Permission issues
-   - Nginx configuration syntax errors
+
+5. Nginx Permission denied 
+
+   To resolve these issues, you can try the following steps:
+
+   1. Run NGINX with super-user privileges: Ensure that you are running NGINX with super-user privileges. You can do this by using `sudo`:
+
+      ```
+      sudo nginx -t
+      ```
+
+   2. **Fix the permissions for the** /run/nginx.pid file: Ensure that the NGINX process has the necessary permissions to write to the `/run/nginx.pid` **file**. You can change the ownership and permissions of the directory and file:
+
+      ```
+      sudo chown -R nginx:nginx /run
+      sudo chmod -R 755 /run
+      ```
+
+   3. After making these changes, test the NGINX configuration again:
+
+      ```
+      sudo nginx -t
+      ```
+
+   4. If the configuration test passes, you can restart NGINX:
+
+      ```
+      sudo systemctl restart nginx
+      ```
+
