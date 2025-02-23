@@ -20,8 +20,8 @@
 #
 upstream newapp {{
     least_conn;  # Use this for better load distribution
-    server 127.0.0.1:5002;.0.1:5002;
-    server 127.0.0.1:5003;1:5003;
+    server 127.0.0.1:5002;
+    server 127.0.0.1:5003;
     server 127.0.0.1:5004;
 }
 
@@ -56,7 +56,7 @@ server {erver {
                 # First attempt to serve request as file, then                proxy_pass http://newapp;
                 # as directory, then fall back to displaying a 404.y_set_header Host $host;
                 # try_files $uri $uri/ =404;
-                proxy_pass http://newapp;rded_for;
+                proxy_pass http://newapp;
                 # preserving the client details on request-Proto $scheme;
                 proxy_set_header Host $host;
                 proxy_set_header X-Real-IP $remote_addr;
