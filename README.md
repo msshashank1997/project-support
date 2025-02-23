@@ -1,188 +1,123 @@
-# Automated GitHub Repository Update System
+# Flask Application with Nginx Load Balancer
 
-This system automatically monitors a GitHub repository for new commits and updates a local deployment when changes are detected.
+This system runs multiple Flask instances with Nginx load balancing.
 
 ## Components
 
-- `check_github_commits.py` - Python script to check for new GitHub commits
-- `automate_update.sh` - Shell script for continuous monitoring and updates
-- `github_token.env` - Environment file for GitHub credentials
+- `app.py` - Flask application
+- `templates/` - HTML template files
+- `nginx/default` - Nginx load balancer configuration
 
 ## Prerequisites
 
 - Python 3.x
-- Git installed and configured
-- GitHub Personal Access Token
+- Nginx
 - Required Python packages:
   ```
-  requests
-  python-dotenv
+  flask
   ```
 
-## Docker Setup
-
-1. Build the Docker image:
-   ```bash
-   docker build -t flask-app:latest .
-   ```
-
-2. Run multiple containers:
-   ```bash
-   # Run three instances on different ports
-   docker run -d -p 5002:5002 --name flask-app-1 flask-app:latest
-   docker run -d -p 5003:5003 --name flask-app-2 flask-app:latest
-   docker run -d -p 5004:5004 --name flask-app-3 flask-app:latest
-   ```
-
-3. Verify containers are running:
-   ```bash
-   docker ps
-   ```
-
-4. Stop and remove all containers:
-   ```bash
-   docker stop flask-app-1 flask-app-2 flask-app-3
-   docker rm flask-app-1 flask-app-2 flask-app-3
-   ```
-
-## Ubuntu Setup
+## Flask Application Setup
 
 1. Install Prerequisites:
-   
    ```bash
    sudo apt update
-   sudo apt install python3 python3-pip git nginx
-   pip3 install requests python-dotenv
+   sudo apt install python3 python3-pip nginx
+   pip3 install flask
    ```
 
-2. Directory Setup:
-   
+2. Start Multiple Flask Instances:
    ```bash
-   /home/user/runscript/     # Script directory
-   /var/www/html/           # Web root directory
+   # Start first instance
+   python app.py --port=5002
+   
+   # Start second instance (in new terminal)
+   python app.py --port=5003
+   
+   # Start third instance (in new terminal)
+   python app.py --port=5004
+   ```
+   or
+   ```
+   set FLASK_APP=app.py
+   python -m flask run --port=5002
+   python -m flask run --port=5003
+   python -m flask run --port=5004
    ```
 
-3. Create Required Files:
-   
+## Nginx Load Balancer Configuration
+
+1. Edit the default site configuration:
    ```bash
-   # Create script directory
-   mkdir -p ~/runscript
-   cd ~/runscript
+   sudo nano /etc/nginx/sites-available/default
    ```
-   
-4. Configure Scripts:
-   
+
+2. Add load balancer configuration:
+   ```nginx
+   upstream newapp {
+       least_conn;  # Load balancing method
+       server 127.0.0.1:5002;
+       server 127.0.0.1:5003;
+       server 127.0.0.1:5004;
+   }
+
+   server {
+       listen 80;
+       server_name _;
+
+       location / {
+           proxy_pass http://newapp;
+           proxy_set_header Host $host;
+           proxy_set_header X-Real-IP $remote_addr;
+           proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+       }
+   }
+   ```
+
+3. Test and reload Nginx:
    ```bash
-   # Set up script directory
-   mkdir ~/runscript
-   cp * ~/runscript/
-   cd ~/runscript
-   
-   # Create github_token.env file
-   echo "GITHUB_TOKEN=your_token_here" > github_token.env
-   
-   # Set permissions
-   chmod +x automate_update.sh
+   sudo nginx -t
+   sudo systemctl reload nginx
    ```
 
-## Nginx Configuration
+## Load Balancing Strategies
 
-Edit the default site configuration:
+The current configuration uses `least_conn` method for load balancing. Alternative options:
+- `ip_hash` - Routes based on client IP (session persistence)
+- `round_robin` - Default method, routes requests sequentially
+- `least_conn` - Routes to server with fewest active connections
 
-```bash
-sudo nano /etc/nginx/sites-available/default
-```
+## Testing the Setup
 
-Update the root directory:
-```nginx
-server {
-    root /home/user/runscript/html;
-    index index.html index.htm;
-    
-    location / {
-        try_files $uri $uri/ =404;
-    }
-}
-```
+1. Access the application:
+   ```
+   http://localhost
+   ```
 
-After making changes:
-```bash
-sudo nginx -t          # Test configuration
-sudo systemctl reload nginx  # Apply changes
-```
-
-## How It Works
-
-1. The system checks for new commits every 10 minutes
-2. When a new commit is detected:
-   - The local repository is updated via `git pull`
-   - The web server is restarted/reloaded
-   - Nginx service is restarted
-
-## Configuration
-
-- Update the repository URL in `check_github_commits.py`
-- Create `github_token.env` with your GitHub token:
-  ```
-  GITHUB_TOKEN=your_token_here
-  ```
-- Adjust the update interval in `automate_update.sh` (default: 600 seconds)
-
-## Security Note
-
-Ensure your GitHub token has appropriate permissions and is kept secure. Never commit the `github_token.env` file to version control.
+2. Monitor Nginx access logs:
+   ```bash
+   sudo tail -f /var/log/nginx/access.log
+   ```
 
 ## Troubleshooting
 
-- Check file permissions (especially for /var/www/html)
-- Ensure nginx service is running: `sudo systemctl status nginx`
-- Verify Python dependencies are installed globally or in a virtual environment
-
-## Crontab Configuration
-
-### Setting Up Cron Jobs
-
-You can automate the monitoring process using crontab instead of running the script manually.
-
-1. Open crontab configuration:
+1. Check Flask instances:
    ```bash
-   crontab -e
+   ps aux | grep python
    ```
 
-2. Add the following line to run the update check every hour:
+2. Verify Nginx status:
    ```bash
-   # Run update check at minute 1 of every hour
-   1 * * * * /home/user/runscript/automate_update.sh >> /home/user/runscript/cron.log 2>&1
+   sudo systemctl status nginx
    ```
 
-   Or for more frequent checks (every 10 minutes):
+3. Check Nginx error logs:
    ```bash
-   # Run update check every 10 minutes
-   */10 * * * * /home/user/runscript/automate_update.sh >> /home/user/runscript/cron.log 2>&1
+   sudo tail -f /var/log/nginx/error.log
    ```
 
-### Managing Cron Jobs
-
-- List current cron jobs:
-  ```bash
-  crontab -l
-  ```
-
-- Remove all cron jobs:
-  ```bash
-  crontab -r
-  ```
-
-- Check cron service status:
-  ```bash
-  sudo systemctl status cron
-  ```
-
-### Cron Log Monitoring
-
-Monitor the cron job output:
-```bash
-tail -f /home/user/runscript/cron.log
-```
-
-Note: Ensure your script has proper logging mechanisms when run through cron, as it runs in a limited environment.
+4. Common issues:
+   - Port conflicts
+   - Permission issues
+   - Nginx configuration syntax errors
